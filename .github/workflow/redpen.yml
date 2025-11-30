@@ -1,4 +1,4 @@
-name: redpen
+name: RedPen Document Validation
 
 on:
   pull_request:
@@ -23,6 +23,6 @@ jobs:
         with:
           reporter: github-pr-check
           basedir: "."
-          targets: "*.md"
+          targets: "**/*.md"
           config: "config/redpen-conf-ja.xml"
           fail_level: error

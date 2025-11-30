@@ -54,6 +54,9 @@ tar xvf redpen-1.10.4.tar.gz
 ```
 
 ### PATH の追加
+
+（注意）各自の環境に合わせたパスを設定すること
+
 ```bash
 echo 'export PATH="$PATH:$HOME/dev/alice/redpen-distribution-1.10.4/bin"' >> ~/.bashrc
 source ~/.bashrc
