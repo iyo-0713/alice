@@ -1,7 +1,83 @@
 import { type FormEvent, useState } from "react";
 
+const buildDialogueEndpoint = (baseUrl: string) => {
+  const trimmed = baseUrl.trim();
+
+  if (!trimmed) {
+    return "/dialogue";
+  }
+
+  const normalized = trimmed.replace(/\/+$/, "");
+  return `${normalized}/dialogue`;
+};
+
+const extractErrorDetail = (payload: unknown) => {
+  if (!payload || typeof payload !== "object") {
+    return "";
+  }
+
+  const record = payload as Record<string, unknown>;
+  const candidates = ["message", "error", "detail"];
+
+  for (const key of candidates) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return "";
+};
+
+const safeParseJson = (text: string) => {
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return null;
+  }
+};
+
+const parseDialogueResponse = async (res: Response): Promise<DialogueResponse> => {
+  const bodyText = (await res.text()).trim();
+
+  if (!bodyText) {
+    throw new Error("応答が空です");
+  }
+
+  const parsed = safeParseJson(bodyText);
+
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("応答形式が不正です");
+  }
+
+  return parsed as DialogueResponse;
+};
+
+const buildErrorMessage = async (res: Response) => {
+  const statusLabel = res.statusText
+    ? `${res.status} ${res.statusText}`
+    : `${res.status}`;
+  const bodyText = (await res.text()).trim();
+
+  if (!bodyText) {
+    return `リクエストに失敗しました: ${statusLabel}`;
+  }
+
+  let detail = bodyText;
+
+  if (bodyText.startsWith("{") || bodyText.startsWith("[")) {
+    const parsed = safeParseJson(bodyText);
+    const extracted = parsed ? extractErrorDetail(parsed) : "";
+    if (extracted) {
+      detail = extracted;
+    }
+  }
+
+  return `リクエストに失敗しました: ${statusLabel} - ${detail}`;
+};
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "";
-const endpoint = apiBaseUrl ? `${apiBaseUrl}/dialogue` : "/dialogue";
+const endpoint = buildDialogueEndpoint(apiBaseUrl);
 
 type DialogueResponse = {
   response: string;
@@ -35,10 +111,10 @@ export default function Index() {
       });
 
       if (!res.ok) {
-        throw new Error(`リクエストに失敗しました: ${res.status}`);
+        throw new Error(await buildErrorMessage(res));
       }
 
-      const data = (await res.json()) as DialogueResponse;
+      const data = await parseDialogueResponse(res);
 
       if (typeof data.response !== "string") {
         throw new Error("応答形式が不正です");

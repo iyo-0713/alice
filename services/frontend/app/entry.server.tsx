@@ -31,11 +31,13 @@ export default function handleRequest(
         ? "onAllReady"
         : "onShellReady";
 
-    let timeoutId: ReturnType<typeof setTimeout> | undefined = setTimeout(
-      () => abort(),
-      streamTimeout + 1000
-    );
-
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const clearStreamTimeout = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
+      }
+    };
     const { pipe, abort } = renderToPipeableStream(
       <ServerRouter context={routerContext} url={request.url} />,
       {
@@ -43,8 +45,7 @@ export default function handleRequest(
           shellRendered = true;
           const body = new PassThrough({
             final(callback) {
-              clearTimeout(timeoutId);
-              timeoutId = undefined;
+              clearStreamTimeout();
               callback();
             }
           });
@@ -62,6 +63,7 @@ export default function handleRequest(
           );
         },
         onShellError(error: unknown) {
+          clearStreamTimeout();
           reject(error);
         },
         onError(error: unknown) {
@@ -72,5 +74,7 @@ export default function handleRequest(
         }
       }
     );
+
+    timeoutId = setTimeout(() => abort(), streamTimeout + 1000);
   });
 }
