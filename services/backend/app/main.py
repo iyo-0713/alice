@@ -18,10 +18,8 @@ async def dialogue(payload: DialogueRequest) -> DialogueResponse:
         payload.model = env.default_llm_model
 
     if payload.model == "dummy": # noqa: SIM108
-        response=dummy_response(payload.input, payload.model)
+        response = dummy_response(payload.input, payload.model)
     else:
         response = "存在しないモデルが指定されています."
-
-    response = dummy_response(payload.input, payload.model) if payload.model == "dummy" else "存在しないモデルが指定されています."
 
     return DialogueResponse(response=response)
