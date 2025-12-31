@@ -2,7 +2,7 @@
 name = "alice-backend"
 version = "0.1.0"
 description = "Backend service for alice"
-requires-python = ">=3.11"
+requires-python = "==3.13.*"
 dependencies = [
     "fastapi>=0.110",
     "pydantic>=2.6",
@@ -30,6 +30,6 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 200
-target-version = "py311"
+target-version = "py313"
 lint.ignore = ["PGH004", "S101", "D104", "D101", "D102", "D203", "D213", "FAST002", "RET504"]
 lint.select = ["ALL"]
