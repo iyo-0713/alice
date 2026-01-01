@@ -5,13 +5,13 @@
 ## ルール
 
 - 回答は必ず日本語で行うこと
-- テストを絶対に書き換えないこと
-- テストクリアのためにユーザの指示に反する変更を加えないこと
+- 既存の自動テストコードを絶対に変更（削除・上書き）しないこと
+- テストクリア「だけ」を目的としてユーザの指示や仕様に反する変更を加えないこと
 
 ## 技術スタック
 
 - Backend: Python 3.13 / FastAPI / Uvicorn / SQLAlchemy / Alembic / psycopg / pydantic
-- DB: PostgreSQL 16 + pgvector（`DATABASE_URL` 未設定時は保存スキップ）
+- DB: PostgreSQL 16 + pgvector（`DATABASE_URL` 未設定時は保存処理を実行せず終了。メモリ保存やエラー発生はなし）
 - Frontend: React 18 / React Router v7 (Framework Mode) / Vite / TypeScript
 - Testing & Lint: pytest / ruff / Vitest / Testing Library / MSW
 - Tooling: uv（Python 依存管理・実行）
@@ -87,6 +87,6 @@ node server.js
 
 ## 環境変数
 
-- Backend: `DATABASE_URL`（未設定なら DB 保存をスキップ）
+- Backend: `DATABASE_URL`（未設定なら保存処理は実行されず終了。メモリ保存やエラー発生はなし）
 - Frontend (dev): `VITE_API_BASE_URL`
 - Frontend (SSR): `API_BASE_URL`
