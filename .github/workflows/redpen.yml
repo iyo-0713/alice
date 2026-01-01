@@ -31,3 +31,4 @@ jobs:
           config: "config/redpen-conf-ja.xml"
           # fail_level: error
           fail_level: warning
+          fail_on_error: true
