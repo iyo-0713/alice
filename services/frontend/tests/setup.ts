@@ -10,7 +10,17 @@ if (typeof window !== "undefined") {
     $RefreshSig$?: () => (type: unknown) => unknown;
   };
 
-  // Vitest doesn't inject the Vite React preamble that the React Router plugin expects.
+  /*
+   * Workaround for Vitest + jsdom: when running tests, Vite does not execute the
+   * React plugin preamble that is normally injected into HTML during dev server
+   * startup. The React Router Vite plugin assumes those globals exist and
+   * asserts their presence; without them, tests can fail early with preamble-
+   * missing errors before any component renders. We stub the minimal globals
+   * to satisfy that check without enabling React Refresh itself.
+   *
+   * This can be removed if/when Vitest starts injecting the Vite React preamble
+   * in the test environment or the React Router plugin stops requiring it.
+   */
   globalWindow.__vite_plugin_react_preamble_installed__ = true;
   globalWindow.$RefreshReg$ = () => {};
   globalWindow.$RefreshSig$ = () => (type) => type;

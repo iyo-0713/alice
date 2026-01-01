@@ -36,7 +36,7 @@ describe("dialogue form", () => {
     await userEvent.type(screen.getByRole("textbox", { name: "入力" }), "hello");
     await userEvent.click(screen.getByRole("button", { name: "送信" }));
 
-    expect(await screen.findByText("echo:hello")).toBeTruthy();
+    expect(await screen.findByText("echo:hello")).toBeDefined();
   });
 
   it("shows error details from JSON responses", async () => {

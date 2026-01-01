@@ -9,6 +9,24 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDir = path.join(__dirname, "build", "client");
 const parsedPort = Number.parseInt(process.env.PORT ?? "5173", 10);
 const port = Number.isNaN(parsedPort) ? 5173 : parsedPort;
+const DEFAULT_MAX_BODY_BYTES = 1024 * 1024;
+const DEFAULT_MAX_BODY_CHUNKS = 1024;
+const parsedMaxBodyBytes = Number.parseInt(
+  process.env.MAX_BODY_BYTES ?? "",
+  10
+);
+const parsedMaxBodyChunks = Number.parseInt(
+  process.env.MAX_BODY_CHUNKS ?? "",
+  10
+);
+const maxBodyBytes =
+  Number.isFinite(parsedMaxBodyBytes) && parsedMaxBodyBytes > 0
+    ? parsedMaxBodyBytes
+    : DEFAULT_MAX_BODY_BYTES;
+const maxBodyChunks =
+  Number.isFinite(parsedMaxBodyChunks) && parsedMaxBodyChunks > 0
+    ? parsedMaxBodyChunks
+    : DEFAULT_MAX_BODY_CHUNKS;
 
 const rawApiBaseUrl = process.env.API_BASE_URL?.trim();
 let apiBaseUrl;
@@ -120,12 +138,35 @@ const serveStatic = async (req, res) => {
   return true;
 };
 
-const readRequestBody = async (req) => {
+class RequestBodyTooLargeError extends Error {
+  statusCode = 413;
+  constructor(message) {
+    super(message);
+    this.name = "RequestBodyTooLargeError";
+  }
+}
+
+const readRequestBody = async (req, limits) => {
   const chunks = [];
+  let totalBytes = 0;
+  let chunkCount = 0;
   for await (const chunk of req) {
+    chunkCount += 1;
+    if (chunkCount > limits.maxChunks) {
+      throw new RequestBodyTooLargeError("Request body too large");
+    }
     if (typeof chunk === "string") {
-      chunks.push(Buffer.from(chunk));
+      const buffer = Buffer.from(chunk);
+      totalBytes += buffer.length;
+      if (totalBytes > limits.maxBytes) {
+        throw new RequestBodyTooLargeError("Request body too large");
+      }
+      chunks.push(buffer);
     } else {
+      totalBytes += chunk.length;
+      if (totalBytes > limits.maxBytes) {
+        throw new RequestBodyTooLargeError("Request body too large");
+      }
       chunks.push(chunk);
     }
   }
@@ -175,11 +216,37 @@ const proxyDialogue = async (req, res) => {
     }
     headers.set(key, Array.isArray(value) ? value.join(",") : value);
   }
+  // Body is reassembled, so the original content-length may be incorrect.
   headers.delete("content-length");
 
   let body;
   if (method !== "GET" && method !== "HEAD") {
-    body = await readRequestBody(req);
+    const contentLength = req.headers["content-length"];
+    if (contentLength) {
+      const parsedLength = Number.parseInt(contentLength, 10);
+      if (Number.isFinite(parsedLength) && parsedLength > maxBodyBytes) {
+        res.statusCode = 413;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ error: "Request body too large" }));
+        return true;
+      }
+    }
+
+    try {
+      body = await readRequestBody(req, {
+        maxBytes: maxBodyBytes,
+        maxChunks: maxBodyChunks
+      });
+    } catch (error) {
+      if (error instanceof RequestBodyTooLargeError) {
+        res.statusCode = error.statusCode;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ error: error.message }));
+        req.destroy();
+        return true;
+      }
+      throw error;
+    }
   }
 
   try {

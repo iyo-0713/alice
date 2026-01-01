@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 
 const buildDialogueEndpoint = (baseUrl: string) => {
   const trimmed = baseUrl.trim();
@@ -76,14 +76,15 @@ const buildErrorMessage = async (res: Response) => {
   return `リクエストに失敗しました: ${statusLabel} - ${detail}`;
 };
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "";
-const endpoint = buildDialogueEndpoint(apiBaseUrl);
-
 type DialogueResponse = {
   response: string;
 };
 
 export default function Index() {
+  const endpoint = useMemo(
+    () => buildDialogueEndpoint(import.meta.env.VITE_API_BASE_URL ?? ""),
+    []
+  );
   const [input, setInput] = useState("");
   const [response, setResponse] = useState("");
   const [error, setError] = useState("");
