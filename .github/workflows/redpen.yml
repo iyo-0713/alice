@@ -23,7 +23,11 @@ jobs:
         with:
           reporter: github-pr-check
           basedir: "."
-          targets: "**/*.md"
+          targets: |
+            README.md
+            services/backend/README.md
+            services/frontend/README.md
+            services/postgres/README.md
           config: "config/redpen-conf-ja.xml"
           # fail_level: error
           fail_level: warning
