@@ -60,8 +60,10 @@ uv run alembic upgrade head
 
 ```
 cd services/backend
-uv run alembic revision -m "add new table"
+uv run alembic revision --autogenerate -m "add new table"
 ```
+
+自動生成は `app/models.py` の SQLAlchemy モデル定義を基準に差分を作成します。
 
 ### uv
 

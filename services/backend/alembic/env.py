@@ -9,6 +9,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.env import Environments
+from app import models
 
 config = context.config
 
@@ -33,7 +34,7 @@ def get_database_url() -> str:
     return normalize_database_url(database_url)
 
 
-target_metadata = None
+target_metadata = models.Base.metadata
 
 
 def run_migrations_offline() -> None:
