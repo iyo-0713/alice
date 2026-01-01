@@ -24,10 +24,29 @@ npm run build
 
 ビルド成果物は `build/client` と `build/server/index.js` に出力されます。
 SSR を動かすにはアプリサーバと静的ファイル配信が必要です。
-このリポジトリには本番サーバの実装が含まれていないため、以下のいずれかで用意してください。
+このリポジトリでは簡易的な Node サーバ (`server.js`) を用意しているため、ビルド後に以下で起動できます。
 
-- 公式の `@react-router/serve` を導入して `build` を配信する
-- `@react-router/node` の `createRequestHandler` を使った独自サーバを実装する
+```sh
+node server.js
+```
+
+## Docker
+
+ビルド:
+
+```sh
+cd services/frontend
+docker build -t alice-frontend .
+```
+
+起動:
+
+```sh
+docker run --rm -p 5173:5173 -e API_BASE_URL=http://host.docker.internal:8000 alice-frontend
+```
+
+ブラウザで `http://localhost:5173` を開いてください。
+バックエンドが別コンテナの場合は `API_BASE_URL` をコンテナ名で指定します（例: `http://backend:8000`）。
 
 ## テスト
 
@@ -47,6 +66,7 @@ npm run typecheck
 
 `VITE_API_BASE_URL` を設定すると、API のベース URL を上書きできます。
 未設定の場合は開発サーバのプロキシで `/dialogue` を `http://localhost:8000` に転送します。
+本番サーバで `/dialogue` をプロキシしたい場合は `API_BASE_URL` を設定してください。
 
 例:
 
