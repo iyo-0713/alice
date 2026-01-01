@@ -2,8 +2,8 @@
 
 from fastapi import BackgroundTasks, FastAPI
 
-from app.env import Environments
 from app.db import save_dialogue_history
+from app.env import Environments
 from app.response.dummy import dummy_response
 from app.schemas.dialogue import DialogueRequest, DialogueResponse
 

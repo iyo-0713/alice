@@ -5,9 +5,9 @@ from __future__ import annotations
 import os
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from alembic import context
 from app.env import Environments
 
 config = context.config
@@ -39,7 +39,8 @@ def run_migrations_offline() -> None:
     """Run migrations in offline mode."""
     url = get_database_url()
     if not url:
-        raise RuntimeError("DATABASE_URL is not set")
+        error_msg = "DATABASE_URL is not set"
+        raise RuntimeError(error_msg)
 
     context.configure(
         url=url,
@@ -57,7 +58,8 @@ def run_migrations_online() -> None:
     """Run migrations in online mode."""
     configuration = config.get_section(config.config_ini_section)
     if configuration is None:
-        raise RuntimeError("Alembic config is missing")
+        error_msg = "Alembic config is missing"
+        raise RuntimeError(error_msg)
 
     configuration["sqlalchemy.url"] = get_database_url()
 

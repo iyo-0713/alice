@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
-import pytest
+if TYPE_CHECKING:
+    import pytest
 
-import app.db as db
+from app import db
 
 
 def test_save_dialogue_history_skips_when_database_url_missing(monkeypatch: pytest.MonkeyPatch) -> None:

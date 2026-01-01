@@ -19,15 +19,14 @@ def save_dialogue_history(user_input: str, assistant_response: str, model: str |
         return
 
     try:
-        with connect(database_url) as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
+        with connect(database_url) as conn, conn.cursor() as cur:
+            cur.execute(
+                """
                     INSERT INTO dialogue_histories (user_input, assistant_response, model)
                     VALUES (%s, %s, %s)
                     """,
-                    (user_input, assistant_response, model),
-                )
-                conn.commit()
+                (user_input, assistant_response, model),
+            )
+            conn.commit()
     except Exception:
         logger.exception("Failed to store dialogue history")

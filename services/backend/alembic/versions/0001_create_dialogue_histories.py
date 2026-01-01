@@ -1,7 +1,7 @@
 """Create dialogue_histories table.
 
 Revision ID: 0001_create_dialogue_histories
-Revises: 
+Revises:
 Create Date: 2025-01-01 00:00:00.000000
 """
 
@@ -29,7 +29,7 @@ def upgrade() -> None:
             response_embedding vector(1536),
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
-        """
+        """,
     )
 
 
