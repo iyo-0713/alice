@@ -25,4 +25,5 @@ jobs:
           basedir: "."
           targets: "**/*.md"
           config: "config/redpen-conf-ja.xml"
-          fail_level: error
+          # fail_level: error
+          fail_level: warning
