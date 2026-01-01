@@ -47,3 +47,55 @@ def test_save_dialogue_history_executes_insert(monkeypatch: pytest.MonkeyPatch) 
     assert "INSERT INTO dialogue_histories" in execute_args[0]
     assert execute_args[1] == ("hello", "response", "dummy")
     connection.commit.assert_called_once()
+
+
+def test_save_dialogue_history_logs_connection_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that save_dialogue_history logs when connect fails."""
+    monkeypatch.setattr(db.env, "database_url", "postgresql://example")
+    connect_mock = MagicMock(side_effect=RuntimeError("boom"))
+    monkeypatch.setattr(db, "connect", connect_mock)
+    exception_mock = MagicMock()
+    monkeypatch.setattr(db.logger, "exception", exception_mock)
+
+    db.save_dialogue_history("hello", "response", "dummy")
+
+    connect_mock.assert_called_once_with("postgresql://example")
+    exception_mock.assert_called_once_with(
+        "Failed to store dialogue history (user_input=%r assistant_response=%r model=%r)",
+        "hello",
+        "response",
+        "dummy",
+    )
+
+
+def test_save_dialogue_history_logs_sql_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that save_dialogue_history logs when execute fails."""
+    monkeypatch.setattr(db.env, "database_url", "postgresql://example")
+
+    cursor = MagicMock()
+    cursor.execute.side_effect = RuntimeError("boom")
+    cursor_context = MagicMock()
+    cursor_context.__enter__.return_value = cursor
+    cursor_context.__exit__.return_value = False
+
+    connection = MagicMock()
+    connection.cursor.return_value = cursor_context
+    connection.__enter__.return_value = connection
+    connection.__exit__.return_value = False
+
+    connect_mock = MagicMock(return_value=connection)
+    monkeypatch.setattr(db, "connect", connect_mock)
+    exception_mock = MagicMock()
+    monkeypatch.setattr(db.logger, "exception", exception_mock)
+
+    db.save_dialogue_history("hello", "response", "dummy")
+
+    connect_mock.assert_called_once_with("postgresql://example")
+    cursor.execute.assert_called_once()
+    connection.commit.assert_not_called()
+    exception_mock.assert_called_once_with(
+        "Failed to store dialogue history (user_input=%r assistant_response=%r model=%r)",
+        "hello",
+        "response",
+        "dummy",
+    )

@@ -29,6 +29,7 @@ def get_database_url() -> str:
     database_url = os.getenv("DATABASE_URL") or env.database_url or ""
     if not database_url:
         database_url = config.get_main_option("sqlalchemy.url") or ""
+        database_url = os.path.expandvars(database_url)
     return normalize_database_url(database_url)
 
 

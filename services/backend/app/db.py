@@ -12,6 +12,14 @@ logger = logging.getLogger(__name__)
 env = Environments()
 
 
+def _truncate_for_log(value: str | None, limit: int = 500) -> str | None:
+    if value is None:
+        return None
+    if len(value) <= limit:
+        return value
+    return f"{value[:limit]}...[truncated {len(value) - limit} chars]"
+
+
 def save_dialogue_history(user_input: str, assistant_response: str, model: str | None) -> None:
     """対話履歴をDBに保存する."""
     database_url = (env.database_url or "").strip()
@@ -29,4 +37,9 @@ def save_dialogue_history(user_input: str, assistant_response: str, model: str |
             )
             conn.commit()
     except Exception:
-        logger.exception("Failed to store dialogue history")
+        logger.exception(
+            "Failed to store dialogue history (user_input=%r assistant_response=%r model=%r)",
+            _truncate_for_log(user_input),
+            _truncate_for_log(assistant_response),
+            _truncate_for_log(model),
+        )

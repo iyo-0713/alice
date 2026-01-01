@@ -14,5 +14,7 @@ class Environments(BaseSettings):
     # 利用モデル
     default_llm_model: str = Field(default="dummy")
 
-    # DB接続URL
+    # アプリケーションが利用するデータベース接続URL
+    # 例: postgresql+psycopg://user:password@localhost:5432/db_name
+    # None の場合はデータベースを利用しない構成を想定。
     database_url: str | None = Field(default=None)
