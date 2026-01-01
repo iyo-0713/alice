@@ -13,3 +13,6 @@ class Environments(BaseSettings):
 
     # 利用モデル
     default_llm_model: str = Field(default="dummy")
+
+    # DB接続URL
+    database_url: str | None = Field(default=None)

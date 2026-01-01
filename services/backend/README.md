@@ -2,6 +2,7 @@
   - [llm](#llm)
 - [環境設定](#環境設定)
   - [docker](#docker)
+  - [DB (PostgreSQL + pgvector)](#db-postgresql--pgvector)
   - [uv](#uv)
   - [テスト方法](#テスト方法)
 
@@ -36,6 +37,30 @@ docker run --rm -p 8000:8000 alice-backend
 curl -X POST "http://localhost:8000/dialogue" \
   -H "Content-Type: application/json" \
   -d '{"input":"Hello"}'
+```
+
+### DB (PostgreSQL + pgvector)
+
+対話履歴は PostgreSQL に保存します。`DATABASE_URL` が未設定の場合は保存をスキップします。
+
+DB は単独コンテナで起動します。起動手順は `services/postgres/README.md` を参照してください。
+
+```
+export DATABASE_URL=postgresql://alice:alice@localhost:5432/alice
+```
+
+初期化と更新は Alembic で行います。
+
+```
+cd services/backend
+uv run alembic upgrade head
+```
+
+マイグレーションの追加:
+
+```
+cd services/backend
+uv run alembic revision -m "add new table"
 ```
 
 ### uv
