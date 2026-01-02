@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 from sqlalchemy import BigInteger, DateTime, Text, text
 from sqlalchemy.dialects.postgresql.base import ischema_names
@@ -18,6 +21,7 @@ class Vector(UserDefinedType):
     cache_ok = True
 
     def __init__(self, dimensions: int | str | None = None) -> None:
+        """Vectorクラスの初期化."""
         if isinstance(dimensions, str):
             dimensions = int(dimensions)
         self.dimensions = dimensions
@@ -28,6 +32,7 @@ class Vector(UserDefinedType):
         return f"vector({self.dimensions})"
 
     def __repr__(self) -> str:
+        """Vectorクラスの文字列表現."""
         return f"Vector({self.dimensions})"
 
 

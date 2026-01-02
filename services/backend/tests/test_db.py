@@ -17,7 +17,7 @@ def test_save_dialogue_history_skips_when_database_url_missing(monkeypatch: pyte
     connect_mock = MagicMock()
     monkeypatch.setattr(db, "connect", connect_mock)
 
-    db.save_dialogue_history("hello", "response", "dummy")
+    db.save_dialogue_history("hello", "response", "dummy", "dummy")
 
     assert connect_mock.call_count == 0
 
@@ -39,13 +39,13 @@ def test_save_dialogue_history_executes_insert(monkeypatch: pytest.MonkeyPatch) 
     connect_mock = MagicMock(return_value=connection)
     monkeypatch.setattr(db, "connect", connect_mock)
 
-    db.save_dialogue_history("hello", "response", "dummy")
+    db.save_dialogue_history("hello", "response", "dummy", "dummy")
 
     connect_mock.assert_called_once_with("postgresql://example")
     cursor.execute.assert_called_once()
     execute_args = cursor.execute.call_args.args
     assert "INSERT INTO dialogue_histories" in execute_args[0]
-    assert execute_args[1] == ("hello", "response", "dummy")
+    assert execute_args[1] == ("hello", "response", "dummy", "dummy")
     connection.commit.assert_called_once()
 
 
@@ -57,13 +57,14 @@ def test_save_dialogue_history_logs_connection_error(monkeypatch: pytest.MonkeyP
     exception_mock = MagicMock()
     monkeypatch.setattr(db.logger, "exception", exception_mock)
 
-    db.save_dialogue_history("hello", "response", "dummy")
+    db.save_dialogue_history("hello", "response", "dummy", "dummy")
 
     connect_mock.assert_called_once_with("postgresql://example")
     exception_mock.assert_called_once_with(
-        "Failed to store dialogue history (user_input=%r assistant_response=%r model=%r)",
+        "Failed to store dialogue history (user_input=%r assistant_response=%r model=%r title=%r)",
         "hello",
         "response",
+        "dummy",
         "dummy",
     )
 
@@ -88,14 +89,15 @@ def test_save_dialogue_history_logs_sql_error(monkeypatch: pytest.MonkeyPatch) -
     exception_mock = MagicMock()
     monkeypatch.setattr(db.logger, "exception", exception_mock)
 
-    db.save_dialogue_history("hello", "response", "dummy")
+    db.save_dialogue_history("hello", "response", "dummy", "dummy")
 
     connect_mock.assert_called_once_with("postgresql://example")
     cursor.execute.assert_called_once()
     connection.commit.assert_not_called()
     exception_mock.assert_called_once_with(
-        "Failed to store dialogue history (user_input=%r assistant_response=%r model=%r)",
+        "Failed to store dialogue history (user_input=%r assistant_response=%r model=%r title=%r)",
         "hello",
         "response",
+        "dummy",
         "dummy",
     )

@@ -23,5 +23,8 @@ async def dialogue(payload: DialogueRequest, background_tasks: BackgroundTasks) 
     else:
         response = "存在しないモデルが指定されています."
 
-    background_tasks.add_task(save_dialogue_history, payload.input, response, payload.model)
+    # ダミーでタイトルを追加
+    title = "dummy"
+
+    background_tasks.add_task(save_dialogue_history, payload.input, response, payload.model, title)
     return DialogueResponse(response=response)
