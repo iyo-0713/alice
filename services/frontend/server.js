@@ -175,7 +175,10 @@ const readRequestBody = async (req, limits) => {
 
 const proxyDialogue = async (req, res) => {
   const pathname = getPathname(req);
-  if (pathname !== "/dialogue") {
+  if (!pathname) {
+    return false;
+  }
+  if (pathname !== "/dialogue" && !pathname.startsWith("/dialogue/")) {
     return false;
   }
 
@@ -189,7 +192,7 @@ const proxyDialogue = async (req, res) => {
   const method = req.method ?? "GET";
   const targetUrl = new URL(apiBaseUrl);
   const basePath = targetUrl.pathname.replace(/\/$/, "");
-  targetUrl.pathname = `${basePath}/dialogue`;
+  targetUrl.pathname = `${basePath}${pathname}`;
 
   const incomingUrl = new URL(req.url ?? "", "http://localhost");
   targetUrl.search = incomingUrl.search;

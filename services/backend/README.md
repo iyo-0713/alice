@@ -1,5 +1,6 @@
 - [エンドポイント](#エンドポイント)
   - [llm](#llm)
+  - [履歴](#履歴)
 - [環境設定](#環境設定)
   - [docker](#docker)
   - [DB (PostgreSQL + pgvector)](#db-postgresql--pgvector)
@@ -18,6 +19,30 @@ curl -X POST "http://localhost:8000/dialogue" \
   -H "Content-Type: application/json" \
   -d '{"input":"Hello"}'
 ```
+
+### 履歴
+
+`GET /dialogue/histories`
+
+```
+curl "http://localhost:8000/dialogue/histories?limit=20"
+```
+
+レスポンス例:
+
+```
+{
+  "histories": [
+    {
+      "id": 1,
+      "title": "dummy",
+      "created_at": "2024-01-02T03:04:05Z"
+    }
+  ]
+}
+```
+
+`title` は `null` の場合があります。
 
 ## 環境設定
 
@@ -60,8 +85,10 @@ uv run alembic upgrade head
 
 ```
 cd services/backend
-uv run alembic revision -m "add new table"
+uv run alembic revision --autogenerate -m "add new table"
 ```
+
+自動生成は `app/models.py` の SQLAlchemy モデル定義を基準に差分を作成します。
 
 ### uv
 

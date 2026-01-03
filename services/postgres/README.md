@@ -2,6 +2,7 @@
 
 このディレクトリは DB を単独コンテナで起動するための手順をまとめたものです。
 スキーマ初期化と更新は Alembic で行います。
+マイグレーションの追加は `services/backend/app/models.py` の定義を基に `--autogenerate` で作成します。
 
 ## 起動
 

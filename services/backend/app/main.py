@@ -2,10 +2,10 @@
 
 from fastapi import BackgroundTasks, FastAPI
 
-from app.db import save_dialogue_history
+from app.db import fetch_dialogue_histories, save_dialogue_history
 from app.env import Environments
 from app.response.dummy import dummy_response
-from app.schemas.dialogue import DialogueRequest, DialogueResponse
+from app.schemas.dialogue import DialogueHistoriesResponse, DialogueHistoryItem, DialogueRequest, DialogueResponse
 
 env = Environments()
 
@@ -23,5 +23,19 @@ async def dialogue(payload: DialogueRequest, background_tasks: BackgroundTasks) 
     else:
         response = "存在しないモデルが指定されています."
 
-    background_tasks.add_task(save_dialogue_history, payload.input, response, payload.model)
+    # ダミーでタイトルを追加
+    title = "dummy"
+
+    background_tasks.add_task(save_dialogue_history, payload.input, response, payload.model, title)
     return DialogueResponse(response=response)
+
+
+@app.get("/dialogue/histories")
+async def dialogue_histories(limit: int = 100) -> DialogueHistoriesResponse:
+    """対話履歴の一覧を取得する."""
+    histories = fetch_dialogue_histories(limit)
+    items = [
+        DialogueHistoryItem(id=history_id, title=title, created_at=created_at)
+        for history_id, title, created_at in histories
+    ]
+    return DialogueHistoriesResponse(histories=items)

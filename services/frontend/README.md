@@ -1,6 +1,6 @@
 # フロントエンド
 
-React Router v7 Framework Mode + Vite + TypeScript で `POST /dialogue` を叩く最小構成です。
+React Router v7 Framework Mode + Vite + TypeScript で `POST /dialogue` を叩く最小構成です。履歴一覧は `GET /dialogue/histories` で取得し、左側に表示します。
 
 ## 使い方（開発）
 
@@ -65,8 +65,8 @@ npm run typecheck
 ## 環境変数
 
 `VITE_API_BASE_URL` を設定すると、API のベース URL を上書きできます。
-未設定の場合は開発サーバのプロキシで `/dialogue` を `http://localhost:8000` に転送します。
-本番サーバで `/dialogue` をプロキシしたい場合は `API_BASE_URL` を設定してください。
+未設定の場合は開発サーバのプロキシで `/dialogue` と `/dialogue/histories` を `http://localhost:8000` に転送します。
+本番サーバで `/dialogue` 配下をプロキシしたい場合は `API_BASE_URL` を設定してください。
 
 例:
 

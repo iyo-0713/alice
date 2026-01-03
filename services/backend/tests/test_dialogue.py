@@ -26,10 +26,10 @@ def test_dialogue_uses_dummy_model() -> None:
 def test_dialogue_records_history(monkeypatch: pytest.MonkeyPatch) -> None:
     """対話履歴が保存されることを確認する."""
     client = TestClient(app)
-    calls: list[tuple[str, str, str | None]] = []
+    calls: list[tuple[str, str, str | None, str]] = []
 
-    def fake_save(user_input: str, assistant_response: str, model: str | None) -> None:
-        calls.append((user_input, assistant_response, model))
+    def fake_save(user_input: str, assistant_response: str, model: str | None, title: str) -> None:
+        calls.append((user_input, assistant_response, model, title))
 
     monkeypatch.setattr(main_module, "save_dialogue_history", fake_save)
     response = client.post(
@@ -38,7 +38,7 @@ def test_dialogue_records_history(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
     assert response.status_code == HTTPStatus.OK
-    assert calls == [("hello", "dummy: こんにちは。入力はhelloです", "dummy")]
+    assert calls == [("hello", "dummy: こんにちは。入力はhelloです", "dummy", "dummy")]
 
 
 @pytest.mark.skip(reason="デフォルトモデルはAPI利用の可能性があるのでスキップ")
@@ -47,7 +47,7 @@ def test_dialogue_uses_default_model(monkeypatch: pytest.MonkeyPatch) -> None:
     client = TestClient(app)
     env = Environments()
 
-    monkeypatch.setattr(env, "default_llm_model", "dummy")
+    monkeypatch.setattr(env, "default_llm_model", "dummy", "dummy")
     response = client.post("/dialogue", json={"input": "はじめまして", "model": None})
 
     assert response.status_code == HTTPStatus.OK
