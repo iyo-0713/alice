@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime  # noqa TC003
 
 from sqlalchemy import BigInteger, DateTime, Text, text
 from sqlalchemy.dialects.postgresql.base import ischema_names

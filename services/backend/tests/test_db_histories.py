@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
@@ -37,7 +37,7 @@ def test_fetch_dialogue_histories_skips_when_limit_is_not_positive(monkeypatch: 
 def test_fetch_dialogue_histories_returns_rows(monkeypatch: pytest.MonkeyPatch) -> None:
     """Ensure fetch returns rows from the database."""
     monkeypatch.setattr(db.env, "database_url", "postgresql://example")
-    created_at = datetime(2024, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+    created_at = datetime(2024, 1, 2, 3, 4, 5, tzinfo=UTC)
 
     cursor = MagicMock()
     cursor.fetchall.return_value = [(1, "hello", created_at)]
