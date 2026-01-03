@@ -21,7 +21,7 @@ def _truncate_for_log(value: str | None, limit: int = 500) -> str | None:
     return f"{value[:limit]}...[truncated {len(value) - limit} chars]"
 
 
-def save_dialogue_history(user_input: str, assistant_response: str, model: str| None, title: str) -> None:
+def save_dialogue_history(user_input: str, assistant_response: str, model: str | None, title: str) -> None:
     """対話履歴をDBに保存する."""
     database_url = (env.database_url or "").strip()
     if not database_url:
