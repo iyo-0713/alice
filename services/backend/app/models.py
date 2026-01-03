@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from datetime import datetime
+from datetime import datetime
 
 from sqlalchemy import BigInteger, DateTime, Text, text
 from sqlalchemy.dialects.postgresql.base import ischema_names

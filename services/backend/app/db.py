@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 
 from psycopg import connect
 
@@ -44,3 +45,29 @@ def save_dialogue_history(user_input: str, assistant_response: str, model: str| 
             _truncate_for_log(model),
             _truncate_for_log(title),
         )
+
+
+def fetch_dialogue_histories(limit: int = 100) -> list[tuple[int, str | None, datetime]]:
+    """対話履歴の一覧を取得する."""
+    database_url = (env.database_url or "").strip()
+    if not database_url:
+        return []
+    if limit <= 0:
+        return []
+
+    try:
+        with connect(database_url) as conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                    SELECT id, title, created_at
+                    FROM dialogue_histories
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT %s
+                    """,
+                (limit,),
+            )
+            rows = cur.fetchall()
+            return [(row[0], row[1], row[2]) for row in rows]
+    except Exception:
+        logger.exception("Failed to fetch dialogue histories (limit=%r)", limit)
+        return []
