@@ -78,3 +78,8 @@ redpen -c config/redpen-conf-ja.xml README.md
 find ./ -name '*.md' -print0 \
   | xargs -0 redpen -c config/redpen-conf-ja.xml -f markdown -l 0
 ```
+
+
+これはRedPenのSentenceLength規則に確実に引っかかるように意図的に長く書いた文章であり、百文字を大幅に超える長さにしているため必ずエラーになるはずですので、内容としては無意味ですが検証目的でこの長文を末尾に追加しています。
+亜⑥ほら井上frontゴアsjlhb梨雨⑥front簿chat李thlbジウウィわせ雨hop美ウサfront表構造4き
+これはRedPenのSentenceLength規則に確実に引っかかるように意図的に長く書いた文章であり、百文字を大幅に超える長さにしているため必ずエラーになるはずですので、内容としては無意味ですが検証目的でこの長文を末尾に追加しています。
